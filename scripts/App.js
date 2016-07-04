@@ -1,7 +1,9 @@
 import React, { Component, PropTypes } from 'react';
 import { render } from 'react-dom';
 
-// Main component. Renders a SearchBar and a ContactList
+// Main (stateful) component.
+// Renders a SearchBar and a ContactList
+// Passes down filterText state and handleUserInput callback as props
 class ContactsApp extends Component {
   constructor() {
     super();
@@ -9,10 +11,14 @@ class ContactsApp extends Component {
       filterText: ''
     };
   }
+  handleUserInput(searchTerm) {
+    this.setState({ filterText: searchTerm })
+  }
   render() {
     return (
       <div>
-        <SearchBar filterText={this.state.filterText} />
+        <SearchBar filterText={this.state.filterText}
+          onUserInput={this.handleUserInput.bind(this) } />
         <ContactList contacts={this.props.contacts}
           filterText={this.state.filterText}/>
       </div>
@@ -23,18 +29,29 @@ ContactsApp.propTypes = {
   contacts: PropTypes.arrayOf(PropTypes.object)
 }
 
-//search bar
+// Pure component that receives 2 props from the parent
+// filterText (string) and onUserInput (callback function)
 class SearchBar extends Component {
+  handleChange(event) {
+    this.props.onUserInput(event.target.value)
+  }
   render() {
-    return <input type="search" placeholder="search"
-      value={this.props.filterText} />
+    return <input type="search"
+      placeholder="search"
+      value={this.props.filterText}
+      onChange={this.handleChange.bind(this) } />
   }
 }
 SearchBar.propTypes = {
+  onUserInput: PropTypes.func.isRequired,
   filterText: PropTypes.string.isRequired
 }
 
-//contacts list
+// Pure component that receives both contacts and filterText as props
+// The component is responsible for actualy filtering the
+// contacts before displaying them.
+// It's considered a pure component because given the same
+// contacts and filterText props the output will always be the same.
 class ContactList extends Component {
   render() {
     let filteredContacts = this.props.contacts.filter(
@@ -52,10 +69,9 @@ class ContactList extends Component {
   }
 }
 ContactList.propTypes = {
-  contacts: PropTypes.arrayOf(PropTypes.object)
+  contacts: PropTypes.arrayOf(PropTypes.object),
+  filterText: PropTypes.string.isRequired
 }
-
-//contact item
 class ContactItem extends Component {
   render() {
     return <li>{this.props.name} - {this.props.email}</li>
@@ -63,10 +79,9 @@ class ContactItem extends Component {
 }
 ContactItem.propTypes = {
   name: PropTypes.string.isRequired,
-  email: PropTypes.string.isRequired,
+  email: PropTypes.string.isRequired
 }
 
-//contacts data
 let contacts = [
   { name: "Cassio Zen", email: "cassiozen@gmail.com" },
   { name: "Dan Abramov", email: "gaearon@somewhere.com" },

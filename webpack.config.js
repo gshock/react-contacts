@@ -45,20 +45,20 @@ var webpack = require('webpack');
 var path = require('path');
 
 module.exports = {
+  devtool: 'eval-source-map',
   entry: [
     'webpack-dev-server/client?http://localhost:5000',
     'webpack/hot/dev-server',
-    './scripts/index'
+    __dirname + "/app/app.js"
   ],
   output: {
-    path: __dirname,
+    path: __dirname + "/public",
     filename: 'bundle.js',
     publicPath: '/static/'
   },
   resolve: {
     extensions: ['', '.js']
   },
-  devtool: 'eval-source-map',
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoErrorsPlugin()
@@ -67,8 +67,9 @@ module.exports = {
     loaders: [
       {
         test: /\.jsx?$/,
+        exclude: /node_modules/,
         loaders: ['babel'],
-        include: path.join(__dirname, 'scripts')
+        include: path.join(__dirname, 'app')
       }
     ]
   }
